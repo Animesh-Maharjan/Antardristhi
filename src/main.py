@@ -4,9 +4,19 @@ import json
 from pathlib import Path
 from typing import List, Dict, Any
 import numpy as np
+import google.generativeai as genai
+from dotenv import load_dotenv
+import os
+import requests
 from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
-from langchain_community.llms import Ollama
 import tempfile
+
+# Load environment variables
+load_dotenv()
+
+# Configure Gemini API
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+genai.configure(api_key=GOOGLE_API_KEY)
 
 def load_data(uploaded_file) -> pd.DataFrame:
     """Load data from various file formats and convert to pandas DataFrame."""
@@ -45,20 +55,64 @@ def get_basic_analysis(df: pd.DataFrame) -> Dict[str, Any]:
     
     return analysis
 
+def generate_content_with_gemini(prompt: str) -> str:
+    """Generate content using Gemini 2.0 Flash API directly."""
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GOOGLE_API_KEY}"
+    
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    
+    data = {
+        "contents": [{
+            "parts":[{"text": prompt}]
+        }]
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()
+        result = response.json()
+        if 'candidates' in result and len(result['candidates']) > 0:
+            return result['candidates'][0]['content']['parts'][0]['text']
+        return "No response generated"
+    except Exception as e:
+        st.error(f"Error calling Gemini API: {str(e)}")
+        return str(e)
+
 def generate_suggested_questions(df: pd.DataFrame) -> List[str]:
     """Generate relevant questions based on the dataset structure."""
-    questions = []
     columns = df.columns.tolist()
     
-    # Create a prompt for the LLM to generate questions
-    llm = Ollama(model="llama3.2")
-    context = f"Given a dataset with columns: {', '.join(columns)}, "
-    # context += "suggest 3-5 natural language questions that a non-technical person might want to ask about this data. "
-    context += "Make questions simple and conversational."
+    prompt = f"Given a dataset with columns: {', '.join(columns)}, "
+    prompt += "suggest 3-5 natural language questions that a non-technical person might want to ask about this data. "
+    prompt += "Make questions simple and conversational. Return each question on a new line."
     
-    response = llm.predict(context)
-    questions = [q.strip() for q in response.split('\n') if q.strip()]
-    return questions[:5]  # Return up to 5 questions
+    try:
+        response = generate_content_with_gemini(prompt)
+        questions = [q.strip() for q in response.split('\n') if q.strip()]
+        return questions[:5]
+    except Exception as e:
+        st.error(f"Error generating questions: {str(e)}")
+        return ["What is the total number of records?",
+                "What are the main trends in this data?",
+                "Can you show me a summary of the data?"]
+
+def process_question(df: pd.DataFrame, question: str) -> str:
+    """Process a question about the data."""
+    try:
+        # Prepare context about the data
+        data_context = f"Given this data with columns {', '.join(df.columns.tolist())}\n"
+        data_context += f"First few rows:\n{df.head().to_string()}\n"
+        
+        # Combine context with the question
+        prompt = data_context + f"\nQuestion: {question}\nProvide a clear, conversational answer."
+        
+        # Get response from Gemini
+        response = generate_content_with_gemini(prompt)
+        return response
+    except Exception as e:
+        return f"I apologize, but I encountered an error while processing your question: {str(e)}"
 
 def main():
     st.title("🤖 Interactive Data Analytics Assistant")
@@ -106,33 +160,24 @@ def main():
             
             # Generate and display suggested questions
             st.subheader("❓ Suggested Questions")
-            suggested_questions = generate_suggested_questions(df)
+            if 'suggested_questions' not in st.session_state:
+                st.session_state['suggested_questions'] = generate_suggested_questions(df)
             
-            for i, question in enumerate(suggested_questions, 1):
-                if st.button(f"Q{i}: {question}"):
-                    # Create Pandas DataFrame Agent
-                    agent = create_pandas_dataframe_agent(
-                        llm=Ollama(model="llama2"),
-                        df=df,
-                        verbose=True,
-                        allow_dangerous_code=True
-                    )
-                    response = agent.run(question)
-                    st.write("Answer:", response)
+            # Display questions as buttons
+            for i, question in enumerate(st.session_state['suggested_questions'], 1):
+                if st.button(f"Q{i}: {question}", key=f"q_{i}"):
+                    with st.spinner('Analyzing your question...'):
+                        response = process_question(df, question)
+                        st.write("Answer:", response)
             
             # Custom question input
             st.subheader("🔍 Ask Your Own Question")
             custom_question = st.text_input("What would you like to know about your data?")
             
             if custom_question:
-                agent = create_pandas_dataframe_agent(
-                    llm=Ollama(model="llama2"),
-                    df=df,
-                    verbose=True,
-                    allow_dangerous_code=True
-                )
-                response = agent.run(custom_question)
-                st.write("Answer:", response)
+                with st.spinner('Analyzing your question...'):
+                    response = process_question(df, custom_question)
+                    st.write("Answer:", response)
 
         except Exception as e:
             st.error(f"Error processing file: {str(e)}")
