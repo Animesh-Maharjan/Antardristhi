@@ -1,64 +1,132 @@
-# DataChat: Conversational Data Analysis with Ollama
-DataChat is an interactive web application that lets you analyze and explore your datasets using natural language. Simply upload your CSV or Excel file, and start asking questions about your data in plain English. DataChat leverages the power of Ollama (gemma:2b) for language understanding and LangChain for seamless integration with data analysis tools.
+# DataChat: Interactive Data Analytics Assistant 🤖
 
-[![Ollama](https://img.shields.io/badge/Ollama-gemma%3A2b-blueviolet)](https://ollama.ai/)
-[![LangChain](https://img.shields.io/badge/LangChain-latest-blue)](https://python.langchain.com/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-latest-green)](https://streamlit.io/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+An intelligent data analysis tool that helps non-technical users explore and understand their data through natural language conversations.
 
-## Features
+## Features 🌟
 
-*   **Intuitive Chat Interface:** Ask questions about your data in a conversational manner.
-*   **Support for CSV and Excel Files:** Easily upload your data from common file formats.
-*   **Powerful Data Analysis:**  Get answers to questions about trends, statistics, distributions, and relationships within your data.
-*   **Seamless Integration:** Leverages LangChain to connect Ollama with data analysis tools like Pandas.
+- **Natural Language Queries**: Ask questions about your data in plain English
+- **Intelligent Visualization**: Automatically generates relevant visualizations
+- **Smart Data Processing**: Handles various file formats and data types
+- **Interactive Interface**: User-friendly Streamlit-based UI
+- **Automatic Insights**: Generates helpful insights and suggested questions
+- **Data Cleaning**: Automatic handling of missing values and data type conversions
 
-## Getting Started
+## Installation 🛠️
 
-1.  **Prerequisites:**
-    *   Python 3.12
-    *   Ollama installed and running (see: [https://ollama.ai/](https://ollama.ai/))
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/DataChat.git
+cd DataChat
+```
 
-2.  **Installation:**
+2. Create and activate a virtual environment:
+```bash
+python -m venv env
+# Windows
+env\Scripts\activate
+# Linux/Mac
+source env/bin/activate
+```
 
-    ```bash
-    git clone [https://github.com/WizKnight/DataChat]
-    cd DataChat
-    pip install -r requirements.txt
-    ```
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-3.  **Running the App:**
+4. Set up environment variables:
+Create a `.env` file in the root directory and add:
+```env
+GOOGLE_API_KEY=your_gemini_api_key_here
+```
 
-    ```bash
-    streamlit run src/main.py
-    ```
+## Usage 💡
 
-    This will open DataChat in your web browser.
+1. Start the application:
+```bash
+streamlit run src/main.py
+```
 
-## Usage
+2. Open your browser and navigate to `http://localhost:8501`
 
-1.  **Upload Data:** Click "Select a file..." and choose your CSV or Excel file.
-2.  **Start Chatting:** Type your questions about the data in the chat input box.
-3.  **Get Answers:** DataChat will process your question and display the answer in the chat.
+3. Upload your data file (supported formats: CSV, XLSX, JSON)
 
-## Examples
+4. Start analyzing your data:
+   - View automatic data insights
+   - Ask questions in natural language
+   - Explore suggested visualizations
+   - Get AI-powered explanations
 
-*   "What is the average age of customers?"
-*   "How many sales were made in each region?"
-*   "Which product category has the highest revenue?"
-*   "Show me a histogram of customer ages."
+## Supported Features 📊
 
-## Customization
+### Data Loading
+- CSV files
+- Excel files (XLSX)
+- JSON files
+- Automatic data type detection
+- Missing value handling
+- Duplicate removal
 
-*   **LLM:**  Experiment with different Ollama models or versions for improved performance.
-*   **Data Analysis Tools:**  Extend DataChat by adding custom LangChain tools to integrate with other analysis libraries or APIs.
-*   **UI/UX:** Customize the Streamlit interface to match your preferences.
+### Visualization Types
+- Histograms
+- Line charts
+- Bar charts
+- Scatter plots
+- Pie charts
+- Time series analysis
 
-## License
+### Query Types
+- Filtering data
+- Aggregating values
+- Trend analysis
+- Comparisons
+- Correlations
+- Custom queries
 
-This project is licensed under the Apache 2.0 License.
+## Technical Details 🔧
 
-## Acknowledgements
+### Dependencies
+- Python 3.8+
+- Streamlit
+- Pandas
+- NumPy
+- Plotly
+- Google Generative AI (Gemini)
+- Other requirements listed in `requirements.txt`
 
-*   This project is inspired by the growing potential of large language models and their application to data analysis.
-*   I thank the developers of Ollama, LangChain, and Streamlit for their excellent tools and resources.
+### Project Structure
+```
+DataChat/
+├── src/
+│   ├── main.py          # Main application code
+│   └── package_manager/ # Package management utilities
+├── .env                # Environment variables
+├── requirements.txt    # Project dependencies
+└── README.md          # Project documentation
+```
+
+## Contributing 🤝
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License 📝
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contact 📧
+
+Your Name - [@yourtwitter](https://twitter.com/yourtwitter) - email@example.com
+
+Project Link: [https://github.com/yourusername/DataChat](https://github.com/yourusername/DataChat)
+
+## Acknowledgments 🙏
+
+- Google Generative AI for providing the Gemini API
+- Streamlit for the awesome web framework
+- The open-source community for various dependencies
+
+---
+Made with ❤️ by [Your Name]
